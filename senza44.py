@@ -2,6 +2,10 @@ import pandas as pd
 import datetime
 from datetime import date
 import numpy as np
+import os
+import math
+
+current_dir = os.getcwd()
 
 def main():
 
@@ -45,9 +49,110 @@ def main():
     tab1 = np.zeros([10,2])
     tab2 = np.zeros([numvar,6])
 
-    print(tab1)
 
     ''' Portfolio initializations'''
+    pi_v = np.linspace(0.0001,0.00505578351944675,5)
+    pi_v = 0.0000967 #why do that???
+    npi = 1 #len(pi_v) idk for this
+
+    xfe = np.zeros([npi, 1])
+    yfe = np.zeros([npi, 1])
+    xfe_am = -1*np.ones([npi,1])
+    yfe_am = -1*np.ones([npi,1])
+    prtf_pi2 = np.zeros([2*numvar+11,npi])
+    prtf_pi2 = np.zeros([2*numvar+11,npi])
+
+    discrezione = 0/100
+
+    #start computations that will be measured later
+    ''' Iterations per pi '''
+    for hij in range (0,npi):
+        pi = pi_v
+        am = True
+        rho_pre = np.zeros([1,2])
+        rend_pre = np.zeros([1,2])
+        diam_prepost = np.zeros([2,2])
+
+        for giro in range (0,2):
+            c1 = 1.49618
+            c2 = 1.49618
+            w = 0.7298
+            chi = 1
+            a = chi*w
+            W = chi*((c1*0.5)+(c2*0.5))
+            valore_max_W = 2*(a+1)
+
+            epsilon = 1.0e-004  # penalizzazione violazione vincoli
+            epsilon_or = epsilon    # pro benchmark
+            percent_1 = 0.05    #quantity in (0,1) used to possibly update penalty parameters
+            percent_2 = 0.90    # quantity in (0,1) used to possibly update penalty parameters
+            Delta_k = 40    # number of iterations between two successive updates of penalty parameters
+            Delta_k_rho = 20    # number of iterations between two successive updates of penalty parameter EPSILON
+            max_weight = 10000  # maximum value of any penalty parameter
+            min_weight = 0.0001 # minimum value of any penalty parameter
+            max_epsilon = 1     #maximum value allowed for "epsilon"
+            min_epsilon = 1.0e-15   #minimum value allowed for "epsilon"
+
+            niter = maquanti[giro]
+
+            ''' other initializations '''
+            nomone = 'CdTFP' #id file
+            nomonef = nomone
+            nomone = nomone + '-' + str(giro) + '-' + str(pi) 
+            nomoneD = nomone
+            nomoneFIT = nomone
+            nomoneRHO = nomone
+            nomoneEPSILON = nomone
+            nomonePESI = nomone
+            nomoneTAB1 = nomone
+            nomoneTAB2 = nomone
+            nomonePRTF = nomone
+            nomone = nomone + '-' + str(today).replace('-','') + '-' + str(now)[-6:-1] + '.txt'
+            nomoneD = nomoneD + '-' + str(today).replace('-','') + '-' + str(now)[-6:-1] + '-DIAMETRI.txt'
+            nomoneFIT = nomoneFIT + '-' + str(today).replace('-','') + '-' + str(now)[-6:-1] + '-FITNESS.txt'
+            nomoneRHO = nomoneRHO + '-' + str(today).replace('-','') + '-' + str(now)[-6:-1] + '-RHO.txt'
+            nomoneEPSILON = nomoneEPSILON + '-' + str(today).replace('-','') + '-' + str(now)[-6:-1] + '-EPSILON.txt'
+            nomonePESI = nomonePESI + '-' + str(today).replace('-','') + '-' + str(now)[-6:-1] + '-PESI.txt'
+            nomoneTAB1 = nomoneTAB1 + '-' + str(today).replace('-','') + '-' + str(now)[-6:-1] + '-CONFRONTI_DATI-pi_' + str(pi) + '.txt'
+            nomoneTAB2 = nomoneTAB2 + '-' + str(today).replace('-','') + '-' + str(now)[-6:-1] + '-CONFRONTI_PORT-pi_' + str(pi) + '.txt'
+            nomonePRTF = nomonePRTF + '-' + str(today).replace('-','') + '-' + str(now)[-6:-1] + '-CONFRONTI_TUTTO-pi_' + str(pi) + '.txt'
+            nomonef = nomonef + '-' + str(today).replace('-','') + '-' + str(now)[-6:-1]
+
+            if (hij == 0) and (giro == 0):
+                os.mkdir(nomonef)
+            
+            pathmio = nomonef + '\\'
+            #missing lines 152 - 158 -> don't understand why they are here bc we never created those directories (ask for help)
+
+            step_conta = 1
+            n_confro = math.floor(niter/step_conta)
+
+            violazioni = np.zeros([nrun,1])
+
+            diametro = np.zeros([1, niter])
+            diametro_or = np.zeros([1, niter])
+            conta_fitness = 0
+            conta_RHO = 0
+            conta_fitness_ug = 0
+            conta_RHO_ug = 0
+
+            if n_confro == niter/step_conta:
+                conta_mat = np.zeros([n_confro,4])
+            else:
+                conta_mat = np.zeros([n_confro+1,4])
+
+            if giro == 0:
+                f_super_king = 1.0e+15
+            
+
+            ''' PSO algorithm'''
+            for giacomo in range (0,nrun):
+                epsilon = epsilon_or
+                print('giacomo: ' + str(giacomo) + ' and nrun = ' + str(nrun))
+
+
+            
+            
 
 if __name__ == '__main__':
     main()
