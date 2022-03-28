@@ -123,6 +123,7 @@ def main():
             
             pathmio = nomonef + '\\'
             #missing lines 152 - 158 -> don't understand why they are here bc we never created those directories (ask for help)
+            fid1 = 'temp'
 
             step_conta = 1
             n_confro = math.floor(niter/step_conta)
@@ -148,10 +149,68 @@ def main():
             ''' PSO algorithm'''
             for giacomo in range (0,nrun):
                 epsilon = epsilon_or
-                print('giacomo: ' + str(giacomo) + ' and nrun = ' + str(nrun))
 
-
+                print('******************************************************************************************* \n')
+                print('******************************************************************************************* \n')
+                print('*** File identifier                : \n', nomone)
+                print('*** Current expected return value: \n', pi)
+                print('*** round                                : \n', giro)
+                if giro == 0:
+                    print('*** PSO_init                            :  \n', PSO_init)            
+                else:
+                    print('*** PSO_init                            :  \n', 'Best population of round no. 1')
+                print('*** Total number of iterations         :  \n', niter)
+                print('*** Number of the current run             :  \n', giacomo)
+                print('******************************************************************************************* \n')
+                print('******************************************************************************************* \n')
             
+                
+                print(fid1, '******************************************************************************************* \n')
+                print(fid1, '******************************************************************************************* \n')
+                print(fid1, '*** File identifier                :  \n', nomone)
+
+                if giro == 0:
+                    print(fid1, '*** PSO_init                            :  \n', PSO_init)
+                else:
+                    print(fid1, '*** PSO_init                            :  \n', 'Best population of round no. 1')
+                print(fid1, '*** Total number of iterations        :  \n', niter)
+                print(fid1, '***Number of the current run              :  \n', giacomo)
+                print(fid1, '*** Current expected return value:  \n', pi)
+                print(fid1, '******************************************************************************************* \n')
+                print(fid1, '******************************************************************************************* \n')
+
+                vmax_x = np.zeros([1,numvar])
+                vmax_x_or = np.zeros([1,numvar])
+
+                Delta_viol = np.zeros([P,1]) # overall constraints violation x constraints weights
+                Delta_viol_OLD = np.zeros([P,1]) # overall OLD constraints violation x OLD constraints weights
+                Delta_viol_b = 0.0 # best (among particles) overall constraints violation x constraints weights
+                Delta_viol_b_OLD = 0.0 # best (among particles) overall OLD constraints violation x OLD constraints weights
+
+                Delta_viol_or = np.zeros([P,1]) # pro benchmark
+                Delta_viol_OLD_or = np.zeros([P,1]) # pro benchmark
+                Delta_viol_b_or = 0.0 # pro benchmark
+                Delta_viol_b_OLD_or = 0.0 # pro benchmark
+            
+                converg = np.zeros([niter,1]) # for storing risk function
+                RR = np.zeros([niter,1]) # for storing risk function
+                DD = np.zeros([niter,1]) # for storing constraint violations
+                e_v = np.zeros ([niter, 1]) # for dynamic epsilon storage
+                v_v = np.zeros ([niter, 8]) # for dynamic constraint storage
+                p_v = np.ones ([niter, 8]) # for storing dynamic weights
+            
+                converg_or = np.zeros([niter,1]) # for storing risk function
+                RR_or = np.zeros([niter,1]) # pro benchmark
+                DD_or = np.zeros([niter,1]) # for storing constraint violations
+
+                # Inizializzazione y e vy
+                y = np.zeros([P,variable])
+                vy = np.zeros([P,variable])
+
+                y_or = np.zeros([P,variable]) # pro benchmark
+                vy_or = np.zeros([P,variable]) # pro benchmark
+
+                ''' initialization of various functions, constraints and weights for constraints '''
             
 
 if __name__ == '__main__':
