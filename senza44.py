@@ -210,7 +210,72 @@ def main():
                 y_or = np.zeros([P,variable]) # pro benchmark
                 vy_or = np.zeros([P,variable]) # pro benchmark
 
+
                 ''' initialization of various functions, constraints and weights for constraints '''
+                # !!! what are lines 257 to 264?? is pesi_vinc a function?
+
+                rho = np.zeros([P, 1]) # risk function
+                R = np.zeros([P, 1]) # portfolio return
+                vinc_1 = np.zeros([P, 1]) # budget constraint
+                vinc_2 = np.zeros([P, 1]) # profitability constraint
+                vinc_4 = np.zeros([P, 1]) # lower cardinality constraint
+                vinc_5 = np.zeros([P, 1]) # upper cardinality constraint
+                app_3 = np.zeros([P, numvar])
+                vinc_7 = np.zeros([P, 1]) # constraint minimum fraction
+                app_4 = np.zeros([P, numvar])
+                vinc_8 = np.zeros([P, 1]) # constraint maximum fraction
+                difference = np.zeros([T, numvar1])
+
+                rho_or = np.zeros([P, 1]) 
+                R_or = np.zeros([P, 1]) 
+                vinc_1_or = np.zeros([P, 1]) 
+                vinc_2_or = np.zeros([P, 1]) 
+                vinc_4_or = np.zeros([P, 1]) 
+                vinc_5_or = np.zeros([P, 1]) 
+                app_3_or = np.zeros([P, numvar])
+                vinc_7_or = np.zeros([P, 1]) 
+                app_4_or = np.zeros([P, numvar])
+                vinc_8_or = np.zeros([P, 1]) 
+                difference_or = np.zeros([T, numvar1])
+
+
+                ''' initialization constraint violation previous iteration '''
+                vinc_1_OLD = np.zeros([P, 1]); # budget constraint
+                vinc_2_OLD = np.zeros([P, 1]); # benchmark profitability constraint
+                vinc_4_OLD = np.zeros([P, 1]); # benchmark cardinality constraint
+                vinc_5_OLD = np.zeros([P, 1]); # benchmark cardinality constraint
+                vinc_7_OLD = np.zeros([P, 1]); # constraint minimum fraction
+                vinc_8_OLD = np.zeros([P, 1]); # constraint maximum fraction
+
+                vinc_1_OLD_or = np.zeros([P, 1]); # pro benchmark
+                vinc_2_OLD_or = np.zeros([P, 1]); # pro benchmark
+                vinc_4_OLD_or = np.zeros([P, 1]); # pro benchmark
+                vinc_5_OLD_or = np.zeros([P, 1]); # pro benchmark
+                vinc_7_OLD_or = np.zeros([P, 1]); # pro benchmark
+                vinc_8_OLD_or = np.zeros([P, 1]); # pro benchmark
+
+                ''' Initialization of PSO'''
+                if giro == 0:
+                    if PSO_init == 1:
+                        k = 1
+                        lambda1 = ((-(W-a-1))+(math.sqrt((W-a-1)^2-4*a)))/2
+                        lambda2 = ((-(W-a-1))-(math.sqrt((W-a-1)^2-4*a)))/2
+                        gamma1 = ((lambda1^k)*(a-lambda2)-(lambda2^k)*(a-lambda1))/(lambda1-lambda2)
+                        gamma2 = (W*((lambda1^k)-(lambda2^k)))/(lambda1-lambda2)
+                        sigma1 = gamma1^2
+                        sigma2 = -gamma1*gamma2
+                        sigma3 = gamma2^2
+                        mu1 = ((sigma1+sigma3)+math.sqrt((sigma1+sigma3)^2-4*(sigma1*sigma3-sigma2^2)))/2
+                        mu2 = ((sigma1+sigma3)-math.sqrt((sigma1+sigma3)^2-4*(sigma1*sigma3-sigma2^2)))/2
+                        U = np.zeros([P,variable])
+                        V = np.zeros([P,variable])
+                        coeff1 = -((sigma3-mu1)/sigma2)
+                        coeff2 = -((sigma3-mu2)/sigma2)
+
+                        for i in range(0,variable):
+                            print('loop')
+
+                        
             
 
 if __name__ == '__main__':
