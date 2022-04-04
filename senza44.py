@@ -1,9 +1,11 @@
+from re import A
 import pandas as pd
 import datetime
 from datetime import date
 import numpy as np
 import os
 import math
+import random
 
 current_dir = os.getcwd()
 
@@ -123,7 +125,12 @@ def main():
             
             pathmio = nomonef + '\\'
             #missing lines 152 - 158 -> don't understand why they are here bc we never created those directories (ask for help)
-            fid1 = 'temp'
+            fid1 = open(nomone,'a') # per salvare i dati del migliore portafoglio di ogni run
+            fid2 = open(nomoneD,'a') # per salvare i diametri di ogni i run
+            fid3 = open(nomoneFIT,'a') # per salvare le fitness di ogni i run
+            fid4 = open(nomoneRHO,'a') # per salvare i rho di ogni i run
+            fid5 = open(nomoneEPSILON,'a') # per salvare gli pesi di ogni i run
+            fid6 = open(nomonePESI,'a') # per salvare i pesi di ogni i run     
 
             step_conta = 1
             n_confro = math.floor(niter/step_conta)
@@ -195,9 +202,9 @@ def main():
                 converg = np.zeros([niter,1]) # for storing risk function
                 RR = np.zeros([niter,1]) # for storing risk function
                 DD = np.zeros([niter,1]) # for storing constraint violations
-                e_v = np.zeros ([niter, 1]) # for dynamic epsilon storage
-                v_v = np.zeros ([niter, 8]) # for dynamic constraint storage
-                p_v = np.ones ([niter, 8]) # for storing dynamic weights
+                e_v = np.zeros([niter, 1]) # for dynamic epsilon storage
+                v_v = np.zeros([niter, 8]) # for dynamic constraint storage
+                p_v = np.ones([niter, 8]) # for storing dynamic weights
             
                 converg_or = np.zeros([niter,1]) # for storing risk function
                 RR_or = np.zeros([niter,1]) # pro benchmark
@@ -213,6 +220,7 @@ def main():
 
                 ''' initialization of various functions, constraints and weights for constraints '''
                 # !!! what are lines 257 to 264?? is pesi_vinc a function?
+                pesi_vinc = [0.41, 0.42, 0.52, 0.66, 0.46, 0.72, 0.22, 0.303]
 
                 rho = np.zeros([P, 1]) # risk function
                 R = np.zeros([P, 1]) # portfolio return
@@ -240,19 +248,19 @@ def main():
 
 
                 ''' initialization constraint violation previous iteration '''
-                vinc_1_OLD = np.zeros([P, 1]); # budget constraint
-                vinc_2_OLD = np.zeros([P, 1]); # benchmark profitability constraint
-                vinc_4_OLD = np.zeros([P, 1]); # benchmark cardinality constraint
-                vinc_5_OLD = np.zeros([P, 1]); # benchmark cardinality constraint
-                vinc_7_OLD = np.zeros([P, 1]); # constraint minimum fraction
-                vinc_8_OLD = np.zeros([P, 1]); # constraint maximum fraction
+                vinc_1_OLD = np.zeros([P, 1]) # budget constraint
+                vinc_2_OLD = np.zeros([P, 1]) # benchmark profitability constraint
+                vinc_4_OLD = np.zeros([P, 1]) # benchmark cardinality constraint
+                vinc_5_OLD = np.zeros([P, 1]) # benchmark cardinality constraint
+                vinc_7_OLD = np.zeros([P, 1]) # constraint minimum fraction
+                vinc_8_OLD = np.zeros([P, 1]) # constraint maximum fraction
 
-                vinc_1_OLD_or = np.zeros([P, 1]); # pro benchmark
-                vinc_2_OLD_or = np.zeros([P, 1]); # pro benchmark
-                vinc_4_OLD_or = np.zeros([P, 1]); # pro benchmark
-                vinc_5_OLD_or = np.zeros([P, 1]); # pro benchmark
-                vinc_7_OLD_or = np.zeros([P, 1]); # pro benchmark
-                vinc_8_OLD_or = np.zeros([P, 1]); # pro benchmark
+                vinc_1_OLD_or = np.zeros([P, 1]) # pro benchmark
+                vinc_2_OLD_or = np.zeros([P, 1]) # pro benchmark
+                vinc_4_OLD_or = np.zeros([P, 1]) # pro benchmark
+                vinc_5_OLD_or = np.zeros([P, 1]) # pro benchmark
+                vinc_7_OLD_or = np.zeros([P, 1]) # pro benchmark
+                vinc_8_OLD_or = np.zeros([P, 1]) # pro benchmark
 
                 ''' Initialization of PSO'''
                 if giro == 0:
@@ -273,7 +281,86 @@ def main():
                         coeff2 = -((sigma3-mu2)/sigma2)
 
                         for i in range(0,variable):
-                            print('loop')
+                            U[i,i] = coeff1
+                            U[variable+i,i] = 1
+                            V[i,i] = coeff2
+                            V[variable+i,i] = 1
+                        
+                        for p in range(0,variable):
+                            vy[p,0:variable] = np.transpose(U[0:variable,p])
+                            y[p,0:variable] = np.transpose(U[(variable+1):(2*variable),p])
+                        
+                        x = y[:, 1:numvar]
+                        vx = vy[:, 1:numvar]
+                    else:
+                        x = np.random.rand(P, numvar)
+                        vx = np.random.rand(P, numvar)
+                else:
+                    x = A*R*A*b*A
+                    vx = np.random.rand(P, numvar)
+
+                x_or = x
+                vx_or = vx
+
+                '''Optimization'''
+                f = np.ones([P, 1])*1.0e+015 # fitness vector in each iteration
+                f_king = 1.0e+015 # minor fitness found
+
+                f_or = np.ones([P, 1]) * 1.0e+015 # fitness benchmark initialization
+                f_king_or = 1.0e+015 # lower fitness my benchmark
+                    
+                # d = np.ones (1, numvar) * (1 / kd) # minimum fraction as per article
+                # u = np.ones (1, numvar) * (1 / ku) # maximum fraction as per article
+                # d = zeros (1, numvar) # minimum fraction
+                # u = np.ones (1, numvar) # maximum fraction
+                d = (0.000 / 100) * np.ones([1, numvar]) # minimum fraction
+                u = (100/100) * np.ones([1, numvar]) # maximum fraction
+                ddd = d[0]
+                uuu = u[0]
+                if (ddd.all() == 0): # automatic tolerance desetting
+                    discretion = 0
+                
+            
+                pb_x = [x, f] # pbest: best position vector for particle - last column = value of the objective function
+
+                pb_rho = np.zeros([P, 1])  # pbest rho: vector rho associated with the best positions per particle
+                pb_vio = np.zeros([P, 1])  # pbest violations: rho vector associated with the best position per particle
+                pb_e = 0.0  # pbest epsilo: epsilon vector associated with the best positions per particle
+                pb_vinc = np.zeros([1,8])  # pbest constraints: weights matrix associated with the best positions per particle
+                pb_vinc_OLD = np.zeros([1,8])  # pbest constraints: weights matrix associated with the best positions per particle
+                pb_pesi = np.zeros([1,8])  # pbest weights: weight matrix associated with the best positions per particle
+                rho_b = 0  # fitness function best particle (b = best)
+                rho_b_OLD = 0  # fitness function best previous particle (b = best)
+            
+                pb_x_or = [x_or, f_or]  # pbest benchmark
+                pb_rho_or = np.zeros([P, 1])  # pbest rho: vector rho associated with the best positions per particle
+                pb_vio_or = np.zeros([P, 1])  # pbest violations: rho vector associated with the best position per particle
+                rho_b_or = 0  # best particle benchmark fitness function
+                rho_b_OLD = 0  # fitness benchmark best previous particle function
+
+                g_x = np.zeros([1, numvar + 1])  # gbest and its value of the objective function
+            
+                g_x_or = np.zeros([1, numvar + 1])  # gbest benchmark and relative value of the objective function
+
+                for k in range(0,niter):
+                    # 1) range calculation of maximum speed
+                    for i in range(0,numvar): #numvar = 40
+                        vmax_x[0][i] = abs(max(x[:,i]) - min(x[:,i]))
+                        vmax_x_or[0][i] = abs(max(x_or[:,i]) - min(x_or[:,i]))
+                    
+                    '''print(T)
+                    for t in range(0, T):
+                        print('crashes at t=',t)
+                        difference[t,:] = rendement[t,:] - media    #difference and rendement is a 117x40 array
+                        difference_or[t,:] = rendement[t,:] - media'''
+                    
+                    '''for p in range(0,P):
+                        for i in range(0,numvar):
+                            app_3[p, i] = max(0, d[i].all()-x[p,i])
+                            app_4[p, i] = max(0, x[p,i]-u[i].all())'''
+                
+
+
 
                         
             
