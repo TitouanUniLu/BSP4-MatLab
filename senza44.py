@@ -291,12 +291,16 @@ def main():
                             y[p,0:variable] = np.transpose(U[(variable+1):(2*variable),p])
                         
                         x = y[:, 1:numvar]
+                        print('test1', x.shape)
                         vx = vy[:, 1:numvar]
                     else:
                         x = np.random.rand(P, numvar)
+                        print('test2', x.shape)
                         vx = np.random.rand(P, numvar)
                 else:
-                    x = A*R*A*b*A
+                    x = A*R*A*b*A   #this doesn't work should be ARABA transpose??? what is ARABA
+                    # R = np.zeros([P, 1])
+                    print('test3', x.shape)
                     vx = np.random.rand(P, numvar)
 
                 x_or = x
@@ -345,14 +349,13 @@ def main():
                 for k in range(0,niter):
                     # 1) range calculation of maximum speed
                     for i in range(0,numvar): #numvar = 40
-                        vmax_x[0][i] = abs(max(x[:,i]) - min(x[:,i]))
-                        vmax_x_or[0][i] = abs(max(x_or[:,i]) - min(x_or[:,i]))
+                        vmax_x[0][i] = abs(np.max(x[:,i]) - np.min(x[:,i]))
+                        vmax_x_or[0][i] = abs(np.max(x_or[:,i]) - np.min(x_or[:,i]))
                     
-                    '''print(T)
+                    temp_rendement = np.array(rendement.values.tolist())
                     for t in range(0, T):
-                        print('crashes at t=',t)
-                        difference[t,:] = rendement[t,:] - media    #difference and rendement is a 117x40 array
-                        difference_or[t,:] = rendement[t,:] - media'''
+                        difference[t,:] = temp_rendement[t,:] - media    #difference and rendement is a 117x40 array
+                        difference_or[t,:] = temp_rendement[t,:] - media
                     
                     '''for p in range(0,P):
                         for i in range(0,numvar):
