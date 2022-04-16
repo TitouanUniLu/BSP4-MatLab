@@ -75,7 +75,7 @@ def main():
         rend_pre = np.zeros([1,2])
         diam_prepost = np.zeros([2,2])
 
-        for giro in range (0,2):
+        for giro in range (0,1):
             c1 = 1.49618
             c2 = 1.49618
             w = 0.7298
@@ -291,13 +291,14 @@ def main():
                             y[p,0:variable] = np.transpose(U[(variable+1):(2*variable),p])
                         
                         x = y[:, 1:numvar]
-                        print('test1', x.shape)
+                        #print('test1', x.shape) for debugging
                         vx = vy[:, 1:numvar]
                     else:
                         x = np.random.rand(P, numvar)
-                        print('test2', x.shape)
+                        #print('test2', x.shape) for debugging
                         vx = np.random.rand(P, numvar)
                 else:
+                    #currently never enters here
                     x = A*R*A*b*A   #this doesn't work should be ARABA transpose??? what is ARABA
                     # R = np.zeros([P, 1])
                     print('test3', x.shape)
@@ -357,10 +358,26 @@ def main():
                         difference[t,:] = temp_rendement[t,:] - media    #difference and rendement is a 117x40 array
                         difference_or[t,:] = temp_rendement[t,:] - media
                     
-                    '''for p in range(0,P):
+                    for p in range(0,P): #80
                         for i in range(0,numvar):
-                            app_3[p, i] = max(0, d[i].all()-x[p,i])
-                            app_4[p, i] = max(0, x[p,i]-u[i].all())'''
+                            app_3[p, i] = max(0, d[0][i].all()-x[p,i])
+                            app_4[p, i] = max(0, x[p,i]-u[0][i].all())
+
+                            app_3_or[p, i] = max(0, d[0][i].all()-x_or[p,i])
+                            app_4_or[p, i] = max(0, x_or[p,i]-u[0][i].all())
+
+                        prodotto_somma = np.zeros([P, T])
+                        prodotto_somma_or = np.zeros([P, T])
+                        for t in range(0,T): #117
+                            if np.array_equal(x[p,:], np.transpose(x[p,:])): #for debugging purposes
+                                print('equal ') #it shouldn't be equal
+                            else:
+                                print('not equal')
+                            #this crashes because the operation on the right returns a list and not a value
+                            #proabbly because the transpose is not changing anything
+                            prodotto_somma[p, t] = difference[t,:]*np.transpose(x[p,:]) 
+                            prodotto_somma_or[p, t] = difference_or[t,:]*np.transpose(x_or[p,:])
+                            
                 
 
 

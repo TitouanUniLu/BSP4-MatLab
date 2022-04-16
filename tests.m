@@ -86,6 +86,7 @@ for hij=1:npi
         nomoneTAB1 = nomone; % identificatore file
         nomoneTAB2 = nomone; % identificatore file
         nomonePRTF = nomone; % identificatore file
+        differenza = zeros(T,numvar1);
         oggi
         oggi(1:2)
         adesso
@@ -93,6 +94,12 @@ for hij=1:npi
         nomone
     end
 end
+
+for giro = 1:2
+    giro
+end
+
+
 
 
 
