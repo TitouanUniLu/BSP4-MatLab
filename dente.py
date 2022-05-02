@@ -3,7 +3,7 @@ import numpy as np
 
 def dente(x,d,u):
     y = np.array([np.heaviside(x.all()-d, 0.5)])
-    ri = y.shape[0] 
+    ri = y.shape[0]  
     try:
         co = y.shape[1] 
     except:

@@ -162,36 +162,20 @@ def main():
             for giacomo in range (0,nrun):
                 epsilon = epsilon_or
 
-                print('******************************************************************************************* \n')
-                print('******************************************************************************************* \n')
-                print('*** File identifier                : \n', nomone)
-                print('*** Current expected return value: \n', pi)
-                print('*** round                                : \n', giro)
+                print('******************************************************************************************* ')
+                print('******************************************************************************************* ')
+                print('*** File identifier                : ', nomone)
+                print('*** Current expected return value: ', pi)
+                print('*** round                                : ', giro+1)
                 if giro == 0:
-                    print('*** PSO_init                            :  \n', PSO_init)            
+                    print('*** PSO_init                            : ', PSO_init)            
                 else:
-                    print('*** PSO_init                            :  \n', 'Best population of round no. 1')
-                print('*** Total number of iterations         :  \n', niter)
-                print('*** Number of the current run             :  \n', giacomo)
-                print('******************************************************************************************* \n')
-                print('******************************************************************************************* \n')
+                    print('*** PSO_init                            : ', 'Best population of round no. 1')
+                print('*** Total number of iterations         : ', niter)
+                print('*** Number of the current run             : ', giacomo+1)
+                print('******************************************************************************************* ')
+                print('******************************************************************************************* \n ')
             
-                '''
-                print(fid1, '******************************************************************************************* \n')
-                print(fid1, '******************************************************************************************* \n')
-                print(fid1, '*** File identifier                :  \n', nomone)
-
-                if giro == 0:
-                    print(fid1, '*** PSO_init                            :  \n', PSO_init)
-                else:
-                    print(fid1, '*** PSO_init                            :  \n', 'Best population of round no. 1')
-                print(fid1, '*** Total number of iterations        :  \n', niter)
-                print(fid1, '***Number of the current run              :  \n', giacomo)
-                print(fid1, '*** Current expected return value:  \n', pi)
-                print(fid1, '******************************************************************************************* \n')
-                print(fid1, '******************************************************************************************* \n')
-                '''
-
                 vmax_x = np.zeros([1,numvar])
                 vmax_x_or = np.zeros([1,numvar])
 
@@ -331,8 +315,8 @@ def main():
                 if (ddd.all() == 0): # automatic tolerance desetting
                     discretion = 0
                 
-            
-                pb_x = [x, f] # pbest: best position vector for particle - last column = value of the objective function
+                pb_x = np.concatenate((x, f), axis=1) # pbest: best position vector for particle - last column = value of the objective function
+                #print(pb_x.shape)
 
                 pb_rho = np.zeros([P, 1])  # pbest rho: vector rho associated with the best positions per particle
                 pb_vio = np.zeros([P, 1])  # pbest violations: rho vector associated with the best position per particle
@@ -421,7 +405,46 @@ def main():
 
                     #2.d fitness function
                     f = rho + (1/epsilon)*Delta_viol
-                        
+                    f_or = rho_or + (1/epsilon_or)*Delta_viol_or
+
+                    for p in range(0,P):
+                        if f[p] < pb_x[p, numvar]:
+                            pb_x[p, numvar] = f[p]
+                            if f[p] < f_king:
+                                pb_rho[p] = rho[p]
+                                pb_vio[p] = Delta_viol[p]
+                                pb_e = epsilon
+                
+                                pb_vinc_OLD[0][0] = pb_vinc[0][0]
+                                pb_vinc_OLD[0][1] = pb_vinc[0][1]
+                                pb_vinc_OLD[0][3] = pb_vinc[0][3]
+                                pb_vinc_OLD[0][4] = pb_vinc[0][4]
+                                pb_vinc_OLD[0][6] = pb_vinc[0][6]
+                                pb_vinc_OLD[0][7] = pb_vinc[0][7]
+
+                                pb_vinc[0][0] = vinc_1[p]
+                                pb_vinc[0][1] = vinc_2[p]
+                                pb_vinc[0][3] = vinc_4[p]
+                                pb_vinc[0][4] = vinc_5[p]
+                                pb_vinc[0][6] = vinc_7[p]
+                                pb_vinc[0][7] = vinc_8[p]
+
+                                pb_pesi = pesi_vinc
+                                f_king = f[p]
+
+                                if giro == 0:
+                                    ARABA0 = np.transpose(x)
+
+                            rho_b_OLD = rho_b
+                            rho_b = rho[p]
+                            Delta_viol_b_OLD = Delta_viol_b
+                            Delta_viol_b = Delta_viol[p]
+
+                            for i in range(0, numvar):
+                                pb_x[p,i] = x[p,i]
+                        if giro == 0:
+                            ARABA_ser = ARABA0
+                            ARABA_z_n = 0*ARABA_ser[:,1]
             
 
 if __name__ == '__main__':
