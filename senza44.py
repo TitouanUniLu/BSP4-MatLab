@@ -1,3 +1,4 @@
+from ast import Del
 from re import A
 import pandas as pd
 import datetime
@@ -5,7 +6,7 @@ from datetime import date
 import numpy as np
 import os
 import math
-import random
+from dente import dente
 
 current_dir = os.getcwd()
 
@@ -120,9 +121,12 @@ def main():
             nomonePRTF = nomonePRTF + '-' + str(today).replace('-','') + '-' + str(now)[-6:-1] + '-CONFRONTI_TUTTO-pi_' + str(pi) + '.txt'
             nomonef = nomonef + '-' + str(today).replace('-','') + '-' + str(now)[-6:-1]
 
+            ''' USED TO CREATE DIRECTORY TO ADD CALCULATED VALUES
             if (hij == 0) and (giro == 0):
                 os.mkdir(nomonef)
-            
+            '''
+
+            ''' CREATES THE DIFFERENT .txt FILES TO (POTENTIALLY) STORE DATA
             pathmio = nomonef + '\\'
             #missing lines 152 - 158 -> don't understand why they are here bc we never created those directories (ask for help)
             fid1 = open(nomone,'a') # per salvare i dati del migliore portafoglio di ogni run
@@ -131,6 +135,7 @@ def main():
             fid4 = open(nomoneRHO,'a') # per salvare i rho di ogni i run
             fid5 = open(nomoneEPSILON,'a') # per salvare gli pesi di ogni i run
             fid6 = open(nomonePESI,'a') # per salvare i pesi di ogni i run     
+            '''
 
             step_conta = 1
             n_confro = math.floor(niter/step_conta)
@@ -171,7 +176,7 @@ def main():
                 print('******************************************************************************************* \n')
                 print('******************************************************************************************* \n')
             
-                
+                '''
                 print(fid1, '******************************************************************************************* \n')
                 print(fid1, '******************************************************************************************* \n')
                 print(fid1, '*** File identifier                :  \n', nomone)
@@ -185,6 +190,7 @@ def main():
                 print(fid1, '*** Current expected return value:  \n', pi)
                 print(fid1, '******************************************************************************************* \n')
                 print(fid1, '******************************************************************************************* \n')
+                '''
 
                 vmax_x = np.zeros([1,numvar])
                 vmax_x_or = np.zeros([1,numvar])
@@ -220,7 +226,7 @@ def main():
 
                 ''' initialization of various functions, constraints and weights for constraints '''
                 # !!! what are lines 257 to 264?? is pesi_vinc a function?
-                pesi_vinc = [0.41, 0.42, 0.52, 0.66, 0.46, 0.72, 0.22, 0.303]
+                pesi_vinc = [0, 0.41, 0.42, 0.52, 0.66, 0.46, 0.72, 0.22, 0.303]
 
                 rho = np.zeros([P, 1]) # risk function
                 R = np.zeros([P, 1]) # portfolio return
@@ -320,8 +326,8 @@ def main():
                 # u = np.ones (1, numvar) # maximum fraction
                 d = (0.000 / 100) * np.ones([1, numvar]) # minimum fraction
                 u = (100/100) * np.ones([1, numvar]) # maximum fraction
-                ddd = d[0]
-                uuu = u[0]
+                ddd = d[0][0]
+                uuu = u[0][0]
                 if (ddd.all() == 0): # automatic tolerance desetting
                     discretion = 0
                 
@@ -347,16 +353,21 @@ def main():
             
                 g_x_or = np.zeros([1, numvar + 1])  # gbest benchmark and relative value of the objective function
 
+                temp_rendement = np.array(rendement.values.tolist())
+                for t in range(0, T):
+                    difference[t,:] = temp_rendement[t,:] - media    #difference and rendement is a 117x40 array
+                    difference_or[t,:] = temp_rendement[t,:] - media
+
+                prodotto_somma = np.zeros([P, T])
+                prodotto_somma_or = np.zeros([P, T])
+
+
                 for k in range(0,niter):
                     # 1) range calculation of maximum speed
                     for i in range(0,numvar): #numvar = 40
                         vmax_x[0][i] = abs(np.max(x[:,i]) - np.min(x[:,i]))
                         vmax_x_or[0][i] = abs(np.max(x_or[:,i]) - np.min(x_or[:,i]))
                     
-                    temp_rendement = np.array(rendement.values.tolist())
-                    for t in range(0, T):
-                        difference[t,:] = temp_rendement[t,:] - media    #difference and rendement is a 117x40 array
-                        difference_or[t,:] = temp_rendement[t,:] - media
                     
                     for p in range(0,P): #80
                         for i in range(0,numvar):
@@ -366,22 +377,50 @@ def main():
                             app_3_or[p, i] = max(0, d[0][i].all()-x_or[p,i])
                             app_4_or[p, i] = max(0, x_or[p,i]-u[0][i].all())
 
-                        prodotto_somma = np.zeros([P, T])
-                        prodotto_somma_or = np.zeros([P, T])
                         for t in range(0,T): #117
-                            if np.array_equal(x[p,:], np.transpose(x[p,:])): #for debugging purposes
-                                print('equal ') #it shouldn't be equal
-                            else:
-                                print('not equal')
                             #this crashes because the operation on the right returns a list and not a value
                             #proabbly because the transpose is not changing anything
-                            prodotto_somma[p, t] = difference[t,:]*np.transpose(x[p,:]) 
-                            prodotto_somma_or[p, t] = difference_or[t,:]*np.transpose(x_or[p,:])
                             
-                
+                            prodotto_somma[p, t] = np.dot(difference[t,:], np.transpose(x[p,:]))
+                            prodotto_somma_or[p, t] = np.dot(difference_or[t,:],np.transpose(x_or[p,:]))
+                #print('prodotto_somma =', prodotto_somma)
+                #print('prodotto_somma_or =', prodotto_somma_or)
+
+                        R[p] = np.dot(x[p,:],np.transpose(media)) 
+                        R_or[p] = np.dot(x_or[p,:],np.transpose(media))
+
+                        rho[p] = np.dot((a/T),max(0,sum(prodotto_somma[p,:]))) + np.dot((1-a)*(1/T**(1/b)),max(0,-sum(prodotto_somma[p,:]))**b)**(1/b) - R[p] 
+                        rho_or[p] = np.dot((a/T),max(0,sum(prodotto_somma_or[p,:]))) + np.dot((1-a)*(1/T**(1/b)),max(0,-sum(prodotto_somma_or[p,:]))**b)**(1/b) - R_or[p] 
+                    
+                        #line 443 - 447 -> pointless? calculations but never used later in the code
 
 
+                        #2.7.1 calculations
+                        vinc_1[p] = abs(sum(x[p,:])-1)
+                        vinc_2[p] = max(0, np.dot(pi-x[p,:],np.transpose(media)))
+                        vinc_4[p] = max(0,kd-sum(dente(x[p,:],ddd,uuu)))  #dente is an extenernal function TBD
+                        vinc_5[p] = max(0,sum(dente(x[p,:],ddd,uuu))-ku)
+                        vinc_7[p] = sum(app_3[p,:])
+                        vinc_8[p] = sum(app_4[p,:]) 
 
+                        vinc_1_or[p] = abs(sum(x_or[p,:])-1)
+                        vinc_2_or[p] = max(0, np.dot(pi-x_or[p,:],np.transpose(media)))
+                        vinc_4_or[p] = max(0,kd-sum(dente(x_or[p,:],ddd,uuu)))  #dente is an extenernal function TBD
+                        vinc_5_or[p] = max(0,sum(dente(x_or[p,:],ddd,uuu))-ku)
+                        vinc_7_or[p] = sum(app_3_or[p,:])
+                        vinc_8_or[p] = sum(app_4_or[p,:])
+
+                        #lines 465 - 477 useless like earlier, calculations but never actually used
+
+                        #2.c.2
+                        Delta_viol_OLD[p] = Delta_viol[p]
+                        Delta_viol[p] = pesi_vinc[1]*vinc_1[p] + pesi_vinc[2]*vinc_2[p] + pesi_vinc[4]*vinc_4[p] + + pesi_vinc[5]*vinc_5[p]+ pesi_vinc[7]*vinc_7[p]+ pesi_vinc[8]*vinc_8[p]
+                        # trace_Delta[p,k] = Delta_viol[p]  #useless for the moment
+                        Delta_viol_OLD_or[p] = Delta_viol_or[p]
+                        Delta_viol_or[p] = vinc_1_or[p]+vinc_2_or[p]+vinc_4_or[p]+vinc_5_or[p]+vinc_7_or[p]+vinc_8_or[p]
+
+                    #2.d fitness function
+                    f = rho + (1/epsilon)*Delta_viol
                         
             
 
