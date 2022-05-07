@@ -31,6 +31,7 @@ def main():
     nrun = 5
     maquanti = [150, 100]
 
+    ''' PSP PARAMETERS'''
     a = 0.5     # parametro funzione di rischio
     b = 2       # risk function parameter
     kd = 11     # numero minimo titoli in portafoglio
@@ -42,6 +43,14 @@ def main():
     gra_F_RHO_din_stat = False  # dynamic vs static fitness and risk function graphs
     gra_F_RHO_perc = False      #dynamic vs static fitness / RHO percentages graphs
     gra_FE = False          #efficient border chart
+
+    c1 = 1.49618
+    c2 = 1.49618
+    w = 0.7298
+    chi = 1
+    a = chi*w
+    W = chi*((c1*0.5)+(c2*0.5))
+    valore_max_W = 2*(a+1)
 
     today = date.today()
     now = datetime.datetime.now()
@@ -77,13 +86,7 @@ def main():
         diam_prepost = np.zeros([2,2])
 
         for giro in range (0,1):
-            c1 = 1.49618
-            c2 = 1.49618
-            w = 0.7298
-            chi = 1
-            a = chi*w
-            W = chi*((c1*0.5)+(c2*0.5))
-            valore_max_W = 2*(a+1)
+            
 
             epsilon = 1.0e-004  # penalizzazione violazione vincoli
             epsilon_or = epsilon    # pro benchmark
@@ -327,7 +330,7 @@ def main():
                 rho_b = 0  # fitness function best particle (b = best)
                 rho_b_OLD = 0  # fitness function best previous particle (b = best)
             
-                pb_x_or = [x_or, f_or]  # pbest benchmark
+                pb_x_or = x_or + f_or  # pbest benchmark
                 pb_rho_or = np.zeros([P, 1])  # pbest rho: vector rho associated with the best positions per particle
                 pb_vio_or = np.zeros([P, 1])  # pbest violations: rho vector associated with the best position per particle
                 rho_b_or = 0  # best particle benchmark fitness function
@@ -442,9 +445,83 @@ def main():
 
                             for i in range(0, numvar):
                                 pb_x[p,i] = x[p,i]
+
                         if giro == 0:
                             ARABA_ser = ARABA0
                             ARABA_z_n = 0*ARABA_ser[:,1]
+                        
+                        if f_or[p] < pb_x_or[p, numvar-1]:
+                            pb_x_or[p, numvar-1] = f_or[p]
+                            if f_or[p] < f_king_or:
+                                pb_rho_or[p] = rho_or[p]
+                                pb_vio_or[p] = Delta_viol_or[p]
+                                f_king_or = f_or[p]
+                            
+                            rho_b_OLD_or = rho_b_or
+                            rho_b_or = rho_or[p]
+                            Delta_viol_b_OLD_or = Delta_viol_b_or
+                            Delta_viol_b_or = Delta_viol_or[p]
+
+                            for i in range(0, numvar):
+                                pb_x_or[p,i] = x_or[p,i]
+                    
+                    ''' Identification of the best fitness and location of the particle '''
+                    minimo = min(pb_x[0:,numvar])
+                    posizione = np.where(pb_x[0:,numvar] == minimo)[0][0] #not too sure about this
+                    RR[k] = pb_rho[posizione]
+                    DD[k] = pb_vio[posizione]
+                    e_v[k] = pb_e
+                    v_v[k,:] = pb_vinc[0]
+                    p_v[k,:] = pb_pesi[0]
+
+                    minimo_or = min(pb_x_or[0:,numvar-1])
+                    posizione_or = np.where(pb_x_or[0:,numvar-1] == minimo_or)[0][0] #not too sure about this
+                    RR_or[k] = pb_rho_or[posizione_or]
+                    DD_or[k] = pb_vio_or[posizione_or]
+
+                    if k % 500 == 0:
+                        continue #print statements to be added 
+
+                    if k % Delta_k_rho == 0:
+                        if rho_b >= rho_b_OLD:
+                            epsilon = min(3*epsilon, max_epsilon)
+                        elif rho_b < rho_b_OLD*percent_2:
+                            epsilon = max(0.6*epsilon, min_epsilon)
+
+                    g_x[0][numvar] = minimo    
+                    g_x_or[0][numvar] = minimo_or
+
+                    for i in range(0, numvar):
+                        g_x[0][i] = pb_x[posizione, i]
+                        g_x_or[0][i] = pb_x_or[posizione, i]
+
+                    for p in range(0,P):
+                        for i in range(0,numvar):
+                            if (PSO_init == 1) or (PSO_init == 2):
+                                r1 = 1.0
+                                r2 = 1.0
+                            else:
+                                r1 = np.random.rand()
+                                r2 = np.random.rand()
+                                print(r1, r2)
+                            
+                            r1_or = r1
+                            r2_or = r2
+
+                            vx[p,i] = w*vx[p,i]+c1*r1*(pb_x[p,i]-x[p,i])+c2*r2*(g_x[0,i]-x[p,i])
+                
+                            if vx[p,i] > vmax_x[0,i]:
+                                vx[p,i] = vmax_x[0,i]
+                            x[p,i] = x[p,i] + vx[p,i]
+
+                            vx_or[p,i] = w*vx_or[p,i]+c1*r1_or*(pb_x_or[p,i]-x_or[p,i])+c2*r2_or*(g_x_or[0,i]-x_or[p,i])
+                            if vx_or[p,i] > vmax_x_or[0,i]:
+                                vx_or[p,i] = vmax_x_or[0,i]
+                            x_or[p,i] = x_or[p,i] + vx_or[p,i]
+                    
+                    ''' calculation of the diameter of the particles '''
+
+                    
             
 
 if __name__ == '__main__':
