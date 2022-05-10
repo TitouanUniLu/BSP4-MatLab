@@ -520,9 +520,33 @@ def main():
                             x_or[p,i] = x_or[p,i] + vx_or[p,i]
                     
                     ''' calculation of the diameter of the particles '''
-
-                    
+                    for kk in range(0, P-1):
+                        for jj in range(kk, P):
+                            diametro[0, k] = max(diametro[0, k], np.linalg.norm(x[kk,:]-x[jj,:]) ,2)
+                            diametro_or[0, k] = max(diametro_or[0, k], np.linalg.norm(x_or[kk,:]-x_or[jj,:]) ,2)
             
+                    ''' storage of various quantities '''
+                    converg[k,:] = g_x[:,len(g_x)]                  #not sure about this
+                    converg_or[k,:] = g_x_or[:,len(g_x_or)]
+                
+                
+                xxx = []
+                for i in range(1, niter+1):
+                    xxx.append(i)
+
+                if gra_F_RHO:
+                    altezza = max(converg[5], converg_or[5])
+                    altezzo = min(min(converg), min(converg_or))
+                    if niter < 5:
+                        altezza = 1e3
+                
+                if gra_diametro:
+                    uni = np.ones([niter,1])
+                    altezza = max(diametro + diametro_or)*1.05
+
+                ''' saving results for each single run '''
+
+
 
 if __name__ == '__main__':
     main()
