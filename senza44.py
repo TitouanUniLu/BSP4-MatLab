@@ -545,6 +545,63 @@ def main():
                     altezza = max(diametro + diametro_or)*1.05
 
                 ''' saving results for each single run '''
+                g_z = dente(g_x[0][:-1], ddd, uuu)
+                portfolio = np.transpose(g_x[0][:-1]) + np.transpose(g_z)
+
+                if giacomo == 1:
+                    convergenzaglobal = converg
+                    RRglobal = RR
+                    fit = g_x[0][len(g_x)]
+                    rend_portaf = np.dot(g_x[0][:-1],np.transpose(media))
+                    portfolioglobal = np.transpose(g_x[0][:-1])
+
+                    convergenzaglobal_or = converg_or
+                    RRglobal_or = RR_or
+                    fit_or = g_x_or[0][len(g_x_or)]
+                    rend_portaf_or = np.dot(g_x_or[0][:-1],np.transpose(media))
+                    portfolioglobal_or = np.transpose(g_x_or[0][:-1])
+                else:
+                    continue
+                    ''' section here is useless since we didnt declare the varibales yet 
+                    convergenzaglobal = convergenzaglobal + converg
+                    RRglobal = RRglobal + RR
+                    fit = fit + g_x[0][len(g_x_or)]
+                    rend_portaf = rend_portaf + np.dot(g_x[0][:-1],np.transpose(media))
+                    portfolioglobal = portfolioglobal + np.transpose(g_x[0][:-1])
+
+                    convergenzaglobal_or = convergenzaglobal_or + converg_or
+                    RRglobal_or = RRglobal_or + RR_or
+                    fit_or = fit_or + g_x_or[0][len(g_x_or)]
+                    rend_portaf_or = rend_portaf_or + np.dot(g_x_or[0][:-1],np.transpose(media))
+                    portfolioglobal_or = portfolioglobal_or + np.transpose(g_x_or[0][:-1]) 
+                    '''
+                
+                #needs change!!!
+                conta_fitness = conta_fitness + sum(converg)/niter
+                conta_RHO = conta_RHO + sum(RR)/niter
+                conta_fitness_ug = conta_fitness_ug + sum(converg)/niter
+                conta_RHO_ug = conta_RHO_ug + sum(RR)/niter
+
+                ck_in = 0
+                for ck in range(0, niter-1):
+                    if ck % step_conta == 0:
+                        ck_in += 1
+                        conta_mat[ck_in, 0] += converg[ck]
+                        conta_mat[ck_in, 1] += converg[ck]
+                        conta_mat[ck_in, 2] += RR[ck]
+                        conta_mat[ck_in, 3] += RR[ck]
+                if n_confro == niter/step_conta:
+                    conta_mat[-1][0] += converg[-1]
+                    conta_mat[-1][1] += converg[-1]
+                    conta_mat[-1][2] += RR[-1]
+                    conta_mat[-1][3] += RR[-1]
+                
+                ''' Post Processing '''
+                
+                
+
+
+                    
 
 
 
