@@ -597,12 +597,35 @@ def main():
                     conta_mat[-1][3] += RR[-1]
                 
                 ''' Post Processing '''
+                fitness = g_x[-1]
+                g_z_n = dente(g_x[0][0:-2], ddd-discretion*abs(ddd), uuu+discretion*abs(uuu))
+                g_x_n = g_x[0][0:-2]*g_z_n
+                g_x_n = g_x_n/sum(g_x_n)
+
+                R_n = np.dot(g_x_n,np.transpose(media[0:-1]))
+                #for t in range(0,T):
+                #    prodotto_somma_n[t] = difference[t,:]+np.transpose(g_x_n)
                 
+                rho_n = (a/T)*(max(0,sum(sum(prodotto_somma)))) + (1-a)*(1/T**(1/b))*max(0,sum(sum(-prodotto_somma))**b)**(1/b) - R_n
+                viol_somma_pesi_n = abs(sum(g_x_n)-1)
+                viol_redditivita_n = max(0,np.dot(pi-g_x_n,np.transpose(media[0:-1])))
+                viol_cardinalita_Kd_n = max(0,kd-sum(g_z_n))
+                viol_cardinalita_Ku_n = max(0,sum(g_z_n)-ku)
+
+                viol_frazione_min_n = max(0,sum(g_z_n*ddd-g_x_n))
+                viol_frazione_max_n = max(0,sum(g_x_n-g_z_n*uuu))
+
+                fitness_n = rho_n + (1/e_v[-1])*(p_v[-1,0]*viol_somma_pesi_n + p_v[-1,1]*viol_redditivita_n + p_v[-1,3]*viol_cardinalita_Kd_n + p_v[-1,4]*viol_cardinalita_Ku_n + p_v[-1,6]*viol_frazione_min_n + p_v[-1,7]*viol_frazione_max_n)
+                portafoglio_n = np.transpose(g_x_n) + np.transpose(g_z_n)
                 
-
-
-                    
-
+                if giacomo == 1:
+                    portfolioglobal_x_n = np.transpose(g_x_n)
+                    portfolioglobal_z_n = np.transpose(g_z_n)
+                    fitness_global_n = fitness_n
+                    rho_globale_n = rho_n
+                    rend_portaf_n = R_n
+                
+                ''' post processing and data saving '''
 
 
 if __name__ == '__main__':
