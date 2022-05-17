@@ -597,7 +597,7 @@ def main():
                     conta_mat[-1][3] += RR[-1]
                 
                 ''' Post Processing '''
-                fitness = g_x[-1]
+                fitness = g_x[0][-1]
                 g_z_n = dente(g_x[0][0:-2], ddd-discretion*abs(ddd), uuu+discretion*abs(uuu))
                 g_x_n = g_x[0][0:-2]*g_z_n
                 g_x_n = g_x_n/sum(g_x_n)
@@ -626,6 +626,169 @@ def main():
                     rend_portaf_n = R_n
                 
                 ''' post processing and data saving '''
+                if PSO_init == 1:
+                    print('***** *****     NEW initialization with r1 = r2 = RANDOM     ***** ***** \n')
+                elif PSO_init == 2:
+                    print('***** *****     RANDOM initialization with r1 = r2 = 1     ***** ***** \n')
+                else:
+                    print('***** *****     RANDOM initialization with r1 = r2 = RANDOM     ***** ***** \n')
+                
+                print ('RESULTS: BEST PORTFOLIO AT THE END OF ITERATIONS (CURRENT RUN) ')
+                print ('Desired yield:', pi)
+                print ('Run number:', giacomo)
+                print ('Number of iterations:', niter)
+                print ('Fitness:', fitness)
+                print ('Fitness post-processing:', abs(fitness_n[0]))
+                print ('rho (risk measure):', abs(RR[-1][0]))
+                print ('rho (risk measure) post-processing:',abs(rho_n))
+                print ('----- ----- ----- ----- ----- ----- ----- ----- ----- - --- ----- ----- ')
+                viol_somma_pesi = sum(g_x[1:-2])-1
+                print ('Sum weights:', sum(g_x[1:-2]))
+                print ('Violation sum weights (sum_weights-1):', abs(viol_somma_pesi))
+                print ('Sum post-processing weights:', sum(g_x_n))
+                print ('Post-processing sum weights violation:', abs(viol_somma_pesi_n))
+                print('----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- \n')
+                viol_redditivita = max(0,pi-np.dot(g_x[0][:-1],np.transpose(media)))
+                print('Desired income:', pi)
+                print('Income obtained:', np.dot(g_x[0][:-1],np.transpose(media)))
+                print('Profit violation (max (0, pi-pi_eff.)):', viol_redditivita)
+                print('Income obtained post-processing:', np.dot(g_x_n,np.transpose(media[0:-1])))
+                print('Viol. reddit. post-processing:', viol_redditivita_n)
+                print('----- ----- ----- ----- ----- ----- ----- ----- ----- - --- ----- ----- \ n ')
+                #not getting the intended results
+                viol_cardinalita_Kd = max(0, kd-sum(g_z))
+                print('Number of stocks selected:', sum(g_z))
+                print('Number of selected titles post-proces.:', sum(g_z_n))
+                print('Cardinality violation (kd_eff-kd_calc):', viol_cardinalita_Kd)
+                print('Post-processing cardinality violation:', viol_cardinalita_Kd_n)
+                viol_cardinalita_Ku = max (0, sum(g_z)-ku)
+                print('Cardinality violation (ku_eff-ku_calc):', viol_cardinalita_Ku)
+                print('Post-processing cardinality violation:', viol_cardinalita_Ku_n)
+                viol_fraction_min = max(0, sum(g_z*ddd-g_x[0][-1]))
+                viol_fraction_max = max(0, sum(g_x[0][-1]-g_z*uuu))
+                print('Minimum fraction violation:', viol_fraction_min)
+                print('Post-proces minimum fraction violation.:', viol_frazione_min_n)
+                print('Maximum fraction violation:', viol_fraction_max)
+                print('Post-proces maximum fraction violation.:', viol_fraction_max)
+                print('----- ----- ----- ----- ----- ----- ----- ----- ----- - --- ----- ----- \ n ')
+                print('CONTRIBUTIONS TO THE FITNESS FUNCTION (percentages) \ n')
+                print('rho / Fitness:', 100 * RR[-1]/fitness)
+                print('rho / Fitness post-processing:', 100 * rho_n/fitness_n)
+                print('Violation sum weights / Fitness:', 100 * (abs (p_v[-1,0] * viol_somma_pesi) / e_v[-1]) / fitness)
+                print('Weight sum violation / Fitness post-pr.:', 100 * (abs (p_v[-1,0] * viol_somma_pesi_n) / e_v[-1]) / fitness_n)
+                print('Profitability violation / Fitness:', (100 * p_v[-1,1] * viol_redditivita / e_v[-1]) / fitness)
+                print('Profitability / Fitness violation post-pr.:', (100 * p_v[-1,1] * viol_redditivita_n / e_v[-1]) / fitness_n)
+                print('kd cardinality violation:', (100 * p_v[-1,3] * viol_cardinalita_Kd / e_v[-1]) / fitness)
+                print('Post-proc kd cardinality violation:', (100 * p_v[-1,3] * viol_cardinalita_Kd_n / e_v[-1]) / fitness_n)
+                print('Violation cardinality ku:', (100 * p_v[-1,4] * viol_cardinalita_Ku / e_v[-1]) / fitness)
+                print('Post-proc ku cardinality violation:', (100 * p_v[-1,4] * viol_cardinalita_Ku_n / e_v[-1]) / fitness_n)
+                print('Violation minimum fraction / Fitness:', (100 * p_v[-1,6] * viol_fraction_min / e_v[-1]) / fitness)
+                print('Minimal fraction violation / Post-p Fitness:', (100 * p_v[-1,6] * viol_frazione_min_n / e_v [-1]) / fitness_n)
+                print('Violation maximum fraction / Fitness:', ((100 * p_v[-1,7] * viol_fraction_max) / e_v[-1]) / fitness)
+                print('Max fraction violation / Post-p Fitness:', ((100 * p_v[-1,7] * viol_frazione_max_n) / e_v[-1]) / fitness_n)
+                print('----- ----- ----- ----- ----- ----- ----- ----- ----- - --- ----- ----- \ n ')
+
+                ''' check for post-processing constraints violations '''
+                if viol_redditivita_n > 0: # verifica post-processamento violazione vincolo
+                    violazioni[giacomo] = 1
+                
+                if viol_cardinalita_Kd_n > 0: # verifica post-processamento violazione vincolo
+                    violazioni[giacomo] = 2
+                
+                if viol_cardinalita_Ku_n > 0: # verifica post-processamento violazione vincolo
+                    violazioni[giacomo] = 3
+                
+                if viol_frazione_min_n > 0: # verifica post-processamento violazione vincolo
+                    violazioni[giacomo] = 4
+                
+                if viol_frazione_max_n > 0: # verifica post-processamento violazione vincolo
+                    violazioni[giacomo] = 5
+
+                if giro == 1:
+                    for sat in range(0,P):
+                        ARABA_z_n = dente(ARABA_ser[:,sat],ddd-discretion+abs(ddd), uuu+discretion+abs(uuu))
+                        ARABA_ser[:,sat] = ARABA_ser[:,sat] * ARABA_z_n
+                        ARABA_ser[:,sat] = ARABA_ser[:,sat]/sum(ARABA_ser[:,sat])
+                    if giacomo == 1:
+                        ARABA1 = ARABA0
+                        ARABA = ARABA_ser
+                
+                pos_minima_or = 0
+                fit_migliore_or = convergenzaglobal_or[:,pos_minima_or] # pro benchmark
+                RR_migliore_or = RRglobal_or[:, pos_minima_or] # pro_benchmark
+                fit_migliore = convergenzaglobal[:,pos_minima_or] # better fitness function
+                RR_migliore = RRglobal[:, pos_minima_or] # better risk function
+                    
+                xxx = list(range(0,niter))
+                fitD_su_fitS = np.divide(fit_migliore,fit_migliore_or)
+                rhoD_su_rhoS = np.divide(RR_migliore,RR_migliore_or)
+                vioD_su_vioS = np.divide((fit_migliore-RR_migliore),(fit_migliore_or-RR_migliore_or))
+                uni = np.ones([niter,1])
+
+                ''' comparison between portfolio before post-processing '''
+                conta_fitness = conta_fitness/nrun
+                conta_RHO = conta_RHO/nrun
+                conta_fitness_ug = conta_fitness_ug/nrun
+                conta_RHO_ug = conta_RHO_ug/nrun
+                conta_mat = conta_mat/nrun
+
+                print('\ n')
+                print('\ n')
+                print('\ n')
+                print('----- ----- ----- ----- ----- ----- ----- ----- ----- - --- ----- ----- ')
+                print('----- ----- ----- ----- ----- ----- ----- ----- ----- - --- ----- ----- ')
+                print('----- ----- ----- ----- ----- ----- ----- ----- ----- - --- ----- ----- ')
+                print('COMPARISON OF DYNAMIC MANAGEMENT vs STATIC MANAGEMENT BEFORE POST-PROCESSING ')
+                print('----- ----- ----- ----- ----- ----- ----- ----- ----- - --- ----- ----- ')
+                print('- GLOBAL COMPARISON (ON ALL ITERATIONS) ')
+                print('Dynamic fitness <Static fitness:', 100 * conta_fitness)
+                print('Dynamic fitness <= Static fitness:', 100 * conta_fitness_ug)
+                print('dynamic RHO <static RHO:', 100 * conta_RHO)
+                print('dynamic RHO <= static RHO:', 100 * conta_RHO_ug)
+                dim_conta = conta_mat.shape # MIGHT HAVE THE WRONG SIZE HERE
+                x_confro = np.zeros([1, dim_conta[0]]) # initialization vector for graph
+                righina = 0
+
+                for ugo in range(0,dim_conta[0]):
+                    print('----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ')
+                    if ugo == dim_conta[0]:
+                        print('- COMPARISON TO THE ITERATION: ', niter)
+                        x_confro[0,ugo] = niter 
+                        righina = niter
+                    else:
+                        print('- COMPARISON TO THE ITERATION: ', ugo*step_conta)
+                        x_confro[0,ugo] = ugo*step_conta 
+                        righina = ugo*step_conta
+                    print('Dynamic fitness < Static fitness      : ', 100*conta_mat[ugo,0])
+                    print('Dynamic fitness <= Static fitness    : ', 100*conta_mat[ugo,1])
+
+                    for fof in range(0,nrun):
+                        print(convergenzaglobal[fof][0], convergenzaglobal_or[fof][0], 100*convergenzaglobal[fof][0]/convergenzaglobal_or[fof][0])
+                    
+                    print('Dynamic RHO <Static RHO              : ', 100*conta_mat[ugo,2])
+                    print('Dynamic RHO <= Static RHO             : ', 100*conta_mat[ugo,3])
+                    for fof in range(0,nrun):
+                        print(RRglobal[fof][0], RRglobal_or[fof][0], 100*RRglobal[fof][0]/RRglobal_or[fof][0])
+                print('----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ')
+                print('----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ')
+                print('----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ')
+
+                ''' best portfolio choice among those eligible '''
+                fitness_global_ser = fitness_global_n
+                fitness_minimo = min(fitness_global_ser)
+                rho_pre[0,giro] = RRglobal[0]
+                rend_pre[0,giro] = rend_portaf
+                diam_prepost[0,giro] = diametro[0][1]
+                diam_prepost[1,giro] = diametro_or[0][1]
+
+                print(' ')
+                print(' ')
+                print(' ')
+                print('***** ***** ***** ***** **********  ***** * *****  ***** ***** ***** ***** ***** ***** ')
+                print('RISULTATI: MIGLIORE PORTAFOGLIO POST-PROCESSAMENTO TRA TUTTI I RUN ')
+                print('Run del portafoglio ottimo post-proces.    : ', 1)
+                tab1[0,giro] = 0
+                print('Fitness post-processamento                 : ', fitness_global_n[0])
 
 
 if __name__ == '__main__':
