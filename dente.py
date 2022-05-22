@@ -1,22 +1,21 @@
 from distutils.log import error
 import numpy as np
+import time
 
 def dente(x,d,u):
-    y = np.array([np.heaviside(x.all()-d, 0.5)])
+    y = np.ones(40)
     ri = y.shape[0]  
     try:
         co = y.shape[1] 
     except:
         co = 1
-
     
     if ri == 1:
         ugo = co
     else:
         ugo = ri
-    
 
-    for i in range(0,ugo):
+    for i in range(0,ugo-1):
         if x[i] == d:
             if d == 0:
                 y[i] = 0

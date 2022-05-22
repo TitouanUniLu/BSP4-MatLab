@@ -7,6 +7,7 @@ import numpy as np
 import os
 import math
 from dente import dente
+import time
 
 current_dir = os.getcwd()
 
@@ -599,16 +600,16 @@ def main():
                 ''' Post Processing '''
                 fitness = g_x[0][-1]
                 g_z_n = dente(g_x[0][0:-2], ddd-discretion*abs(ddd), uuu+discretion*abs(uuu))
-                g_x_n = g_x[0][0:-2]*g_z_n
+                g_x_n = g_x[0][0:-1]*g_z_n
                 g_x_n = g_x_n/sum(g_x_n)
 
-                R_n = np.dot(g_x_n,np.transpose(media[0:-1]))
+                R_n = np.dot(g_x_n,np.transpose(media[0:]))
                 #for t in range(0,T):
                 #    prodotto_somma_n[t] = difference[t,:]+np.transpose(g_x_n)
                 
                 rho_n = (a/T)*(max(0,sum(sum(prodotto_somma)))) + (1-a)*(1/T**(1/b))*max(0,sum(sum(-prodotto_somma))**b)**(1/b) - R_n
                 viol_somma_pesi_n = abs(sum(g_x_n)-1)
-                viol_redditivita_n = max(0,np.dot(pi-g_x_n,np.transpose(media[0:-1])))
+                viol_redditivita_n = max(0,np.dot(pi-g_x_n,np.transpose(media[0:])))
                 viol_cardinalita_Kd_n = max(0,kd-sum(g_z_n))
                 viol_cardinalita_Ku_n = max(0,sum(g_z_n)-ku)
 
@@ -652,7 +653,7 @@ def main():
                 print('Desired income:', pi)
                 print('Income obtained:', np.dot(g_x[0][:-1],np.transpose(media)))
                 print('Profit violation (max (0, pi-pi_eff.)):', viol_redditivita)
-                print('Income obtained post-processing:', np.dot(g_x_n,np.transpose(media[0:-1])))
+                print('Income obtained post-processing:', np.dot(g_x_n,np.transpose(media[0:])))
                 print('Viol. reddit. post-processing:', viol_redditivita_n)
                 print('----- ----- ----- ----- ----- ----- ----- ----- ----- - --- ----- ----- \ n ')
                 #not getting the intended results
@@ -789,6 +790,64 @@ def main():
                 print('Run del portafoglio ottimo post-proces.    : ', 1)
                 tab1[0,giro] = 0
                 print('Fitness post-processamento                 : ', fitness_global_n[0])
+                if giro == 1:
+                    fitness_post_giro2 = fitness_global_n[0]
+                tab1[1,giro] = fitness_global_n[0]
+                print('rho (misura di rischio) post-processamento : ', rho_globale_n)
+                tab1[1,giro] = rho_globale_n
+                print('----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- \n')
+                print('Reddito desiderato                         : ', pi)
+                tab1[3,giro] = pi
+                print('Reddito ottenuto post-processamento        : ', rend_portaf_n)
+                tab1[4,giro] = rend_portaf_n
+                print('Numero di titoli selezionati post-proces.  : ', sum(portfolioglobal_z_n[:])) #need to fix this
+                tab1[5,giro] = sum(portfolioglobal_z_n[:])
+
+                if viol_frazione_min_n > 0:
+                    print('Violazione frazione minima/Fitness post-p  :           SÌ \n')
+                    tab1[6,giro] = 1
+                else:
+                    print('Violazione frazione minima/Fitness post-p  :           NO \n')
+                    tab1[6,giro] = 0
+                
+                if viol_frazione_max_n > 0:
+                    print('Violazione frazione massima/Fitness post-p :           SÌ \n')
+                    tab1[7,giro] = 1
+                else:
+                    print('Violazione frazione massima/Fitness post-p :           NO \n')
+                    tab1[7,giro] = 0           
+
+                print ('----- ----- ----- ----- ----- ----- ----- ----- ----- - --- ----- ----- \ n ')
+                print ('Perc. run with eligible p-p portfolio: ', 100 * (1-sum(violazioni) / nrun)) #violazioni > 0
+                tab1[8, giro] = 100 * (1-sum(violazioni) / nrun) #violazioni > 0
+                print ('***** ***** ***** ***** ********** ***** * ***** ***** * **** ***** ***** ***** ***** ')
+                print ('BEST PRE- AND POST-PROCESSING PORTFOLIO COMPOSITION BETWEEN ALL RUN (x (i) and z (i)) ')
+
+                if (rend_portaf_n < pi) or (viol_frazione_min_n > 0) or (100*viol_frazione_max_n > 0):
+                    print('W A R N I N G!!      P O R T A F O G L I O      N O N      A M M I S S I B I L E!! ')
+                    am = False
+                
+                print(portfolioglobal)
+                print(portfolioglobal_x_n)
+                print(portfolioglobal_z_n)
+
+                for mostra in range(0,numvar):
+                    print(portfolioglobal[mostra], abs(portfolioglobal_x_n[mostra]), portfolioglobal_z_n[mostra])
+                
+                print('***** ***** ***** ***** ***** **********     The End    ***** ***** ***** ***** ***** \n')
+                tab1[9,giro] = maquanti[giro] 
+
+                for mostra in range(0,numvar):
+                    tab2[mostra,(giro-1)*3+1] = portfolioglobal[mostra]
+                    tab2[mostra,(giro-1)*3+2] = portfolioglobal_x_n[mostra]
+                    tab2[mostra,(giro-1)*3+3] = portfolioglobal_z_n[mostra]
+
+                #per la forntiera efficiente
+                xfe[hij] = rho_globale_n[0]
+                yfe[hij] = rend_portaf_n[0]
+                if am:
+                    xfe_am[hij] = rho_globale_n[0] 
+                    yfe_am[hij] = rend_portaf_n[0] 
 
 
 if __name__ == '__main__':
