@@ -11,6 +11,24 @@ import time
 
 current_dir = os.getcwd()
 
+def logicalArraySmaller(l1, l2):
+    newl = []
+    for i in range(0,len(l1)):
+        if l1[i] < l2[i]:
+            newl.append(1)
+        else:
+            newl.append(0)
+    return newl
+
+def logicalArraySE(l1,l2):
+    newl = []
+    for i in range(0,len(l1)):
+        if l1[i] <= l2[i]:
+            newl.append(1)
+        else:
+            newl.append(0)
+    return newl
+
 def main():
 
     ''' Loading the data '''
@@ -29,7 +47,7 @@ def main():
 
     ''' Various quantity initializations '''
     PSO_init = 2
-    nrun = 5
+    nrun = 2
     maquanti = [150, 100]
 
     ''' PSP PARAMETERS'''
@@ -258,7 +276,7 @@ def main():
 
                 ''' Initialization of PSO'''
                 if giro == 0:
-                    if PSO_init == 1:
+                    if PSO_init == 1: #alternative PSO
                         k = 1
                         lambda1 = ((-(W-a-1))+(math.sqrt((W-a-1)^2-4*a)))/2
                         lambda2 = ((-(W-a-1))-(math.sqrt((W-a-1)^2-4*a)))/2
@@ -287,7 +305,7 @@ def main():
                         x = y[:, 1:numvar]
                         #print('test1', x.shape) for debugging
                         vx = vy[:, 1:numvar]
-                    else:
+                    else: #standard PSO
                         x = np.random.rand(P, numvar)
                         #print('test2', x.shape) for debugging
                         vx = np.random.rand(P, numvar)
@@ -577,11 +595,10 @@ def main():
                     portfolioglobal_or = portfolioglobal_or + np.transpose(g_x_or[0][:-1]) 
                     '''
                 
-                #needs change!!!
-                conta_fitness = conta_fitness + sum(converg)/niter
-                conta_RHO = conta_RHO + sum(RR)/niter
-                conta_fitness_ug = conta_fitness_ug + sum(converg)/niter
-                conta_RHO_ug = conta_RHO_ug + sum(RR)/niter
+                conta_fitness = conta_fitness + sum(logicalArraySmaller(converg, converg_or))/niter
+                conta_RHO = conta_RHO + sum(logicalArraySmaller(RR, RR_or))/niter
+                conta_fitness_ug = conta_fitness_ug + sum(logicalArraySE(converg, converg_or))/niter
+                conta_RHO_ug = conta_RHO_ug + sum(logicalArraySE(RR, RR_or))/niter
 
                 ck_in = 0
                 for ck in range(0, niter-1):
@@ -827,9 +844,6 @@ def main():
                     print('W A R N I N G!!      P O R T A F O G L I O      N O N      A M M I S S I B I L E!! ')
                     am = False
                 
-                print(portfolioglobal)
-                print(portfolioglobal_x_n)
-                print(portfolioglobal_z_n)
 
                 for mostra in range(0,numvar):
                     print(portfolioglobal[mostra], abs(portfolioglobal_x_n[mostra]), portfolioglobal_z_n[mostra])
@@ -843,11 +857,11 @@ def main():
                     tab2[mostra,(giro-1)*3+3] = portfolioglobal_z_n[mostra]
 
                 #per la forntiera efficiente
-                xfe[hij] = rho_globale_n[0]
-                yfe[hij] = rend_portaf_n[0]
+                xfe[hij] = rho_globale_n
+                yfe[hij] = rend_portaf_n
                 if am:
-                    xfe_am[hij] = rho_globale_n[0] 
-                    yfe_am[hij] = rend_portaf_n[0] 
+                    xfe_am[hij] = rho_globale_n
+                    yfe_am[hij] = rend_portaf_n
 
 
 if __name__ == '__main__':
