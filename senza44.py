@@ -1,5 +1,3 @@
-from ast import Del
-from re import A
 import pandas as pd
 import datetime
 from datetime import date
@@ -7,7 +5,6 @@ import numpy as np
 import os
 import math
 from dente import dente
-import time
 
 current_dir = os.getcwd()
 
@@ -310,11 +307,7 @@ def main():
                         #print('test2', x.shape) for debugging
                         vx = np.random.rand(P, numvar)
                 else:
-                    #currently never enters here
-                    x = A*R*A*b*A   #this doesn't work should be ARABA transpose??? what is ARABA
-                    # R = np.zeros([P, 1])
-                    print('test3', x.shape)
-                    vx = np.random.rand(P, numvar)
+                    continue
 
                 x_or = x
                 vx_or = vx
