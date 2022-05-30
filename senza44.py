@@ -5,6 +5,7 @@ import numpy as np
 import os
 import math
 from dente import dente
+import time
 
 current_dir = os.getcwd()
 
@@ -26,10 +27,10 @@ def logicalArraySE(l1,l2):
             newl.append(0)
     return newl
 
-def main():
+def main(xls):
 
     ''' Loading the data '''
-    df = pd.read_excel('TFM2.xls')
+    df = pd.read_excel(xls) #'TFM2.xls'
     n = len(df)
     numvar = len(df.columns)
 
@@ -559,8 +560,8 @@ def main():
                 ''' saving results for each single run '''
                 g_z = dente(g_x[0][:-1], ddd, uuu)
                 portfolio = np.transpose(g_x[0][:-1]) + np.transpose(g_z)
-
-                if giacomo == 1:
+#CHANGED GIACOMO FROM 1 TO 0 TO TEST
+                if giacomo == 0:        
                     convergenzaglobal = converg
                     RRglobal = RR
                     fit = g_x[0][len(g_x)]
@@ -629,7 +630,7 @@ def main():
                 fitness_n = rho_n + (1/e_v[-1])*(p_v[-1,0]*viol_somma_pesi_n + p_v[-1,1]*viol_redditivita_n + p_v[-1,3]*viol_cardinalita_Kd_n + p_v[-1,4]*viol_cardinalita_Ku_n + p_v[-1,6]*viol_frazione_min_n + p_v[-1,7]*viol_frazione_max_n)
                 portafoglio_n = np.transpose(g_x_n) + np.transpose(g_z_n)
                 
-                if giacomo == 1:
+                if giacomo == 0:
                     portfolioglobal_x_n = np.transpose(g_x_n)
                     portfolioglobal_z_n = np.transpose(g_z_n)
                     fitness_global_n = fitness_n
@@ -715,12 +716,12 @@ def main():
                 if viol_frazione_max_n > 0: # verifica post-processamento violazione vincolo
                     violazioni[giacomo] = 5
 
-                if giro == 1:
+                if giro == 0:
                     for sat in range(0,P):
                         ARABA_z_n = dente(ARABA_ser[:,sat],ddd-discretion+abs(ddd), uuu+discretion+abs(uuu))
                         ARABA_ser[:,sat] = ARABA_ser[:,sat] * ARABA_z_n
                         ARABA_ser[:,sat] = ARABA_ser[:,sat]/sum(ARABA_ser[:,sat])
-                    if giacomo == 1:
+                    if giacomo == 0:
                         ARABA1 = ARABA0
                         ARABA = ARABA_ser
                 
@@ -837,9 +838,17 @@ def main():
                     print('W A R N I N G!!      P O R T A F O G L I O      N O N      A M M I S S I B I L E!! ')
                     am = False
                 
+                filename = "results" + str(today) + ".txt"
 
                 for mostra in range(0,numvar):
                     print(portfolioglobal[mostra], abs(portfolioglobal_x_n[mostra]), portfolioglobal_z_n[mostra])
+                    answer = str(portfolioglobal[mostra]) + " " + str(abs(portfolioglobal_x_n[mostra])) + " " + str(portfolioglobal_z_n[mostra])
+                    with open(filename, "a") as o:
+                        o.write(answer)
+                        o.write("\n")
+                
+                
+                
                 
                 print('***** ***** ***** ***** ***** **********     The End    ***** ***** ***** ***** ***** \n')
                 tab1[9,giro] = maquanti[giro] 
@@ -858,4 +867,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    xls = input("Enter name of xls file please:     ")
+    start = time.time()
+    main(xls)
+    end = time.time()
+    print("Total elapsed time: ", (end-start))

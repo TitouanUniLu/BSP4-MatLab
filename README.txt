@@ -12,15 +12,12 @@ With pip: in the terminal, run the command pip install numpy
 
 Note: In case pip is not installed on the user’s machine, follow this guide: https://pip.pypa.io/en/stable/installation/
 
-Datetime:
-Documentation -> https://docs.python.org/3/library/datetime.html
-This library provides tools to manipulate date and time. It is built into Python and does not require any specific download.
-
-Math:
-“This module provides access to the mathematical functions defined by the C standard.” This library does not require any specific download.
 
 Installation and run procedure:
 -Download the BSP4-MatLab folder
--make sure Python and all previously mentionned libraries are installed
+-make sure Python is installed
+-make sure Numpy is installed
 -open the folder in the command prompt 
 -enter the command  python senza44.py  to run the code
+-put the xls file that will be used in the correct directory
+-type the name of the xls file that will be used ex: TFM2.xls
