@@ -841,8 +841,8 @@ def main(xls):
                 filename = "results" + str(today) + ".txt"
 
                 for mostra in range(0,numvar):
-                    print(portfolioglobal[mostra], abs(portfolioglobal_x_n[mostra]), portfolioglobal_z_n[mostra])
-                    answer = str(portfolioglobal[mostra]) + " " + str(abs(portfolioglobal_x_n[mostra])) + " " + str(portfolioglobal_z_n[mostra])
+                    print(abs(portfolioglobal[mostra]), abs(portfolioglobal_x_n[mostra]), portfolioglobal_z_n[mostra])
+                    answer = str(abs(portfolioglobal[mostra])) + " " + str(abs(portfolioglobal_x_n[mostra])) + " " + str(portfolioglobal_z_n[mostra])
                     with open(filename, "a") as o:
                         o.write(answer)
                         o.write("\n")
