@@ -49,6 +49,7 @@ def main(xls):
     maquanti = [150, 100]
 
     ''' PSP PARAMETERS'''
+    ''' Portfolio initializations'''
     a = 0.5     # parametro funzione di rischio
     b = 2       # risk function parameter
     kd = 11     # numero minimo titoli in portafoglio
@@ -78,8 +79,6 @@ def main(xls):
     tab1 = np.zeros([10,2])
     tab2 = np.zeros([numvar,6])
 
-
-    ''' Portfolio initializations'''
     pi_v = np.linspace(0.0001,0.00505578351944675,5)
     pi_v = 0.0000967 #why do that???
     npi = 1 #len(pi_v) idk for this
@@ -92,6 +91,8 @@ def main(xls):
     prtf_pi2 = np.zeros([2*numvar+11,npi])
 
     discrezione = 0/100
+
+    niter = 150
 
     #start computations that will be measured later
     ''' Iterations per pi '''
@@ -116,7 +117,6 @@ def main(xls):
             max_epsilon = 1     #maximum value allowed for "epsilon"
             min_epsilon = 1.0e-15   #minimum value allowed for "epsilon"
 
-            niter = maquanti[giro]
 
             ''' other initializations '''
             nomone = 'CdTFP' #id file
@@ -815,14 +815,14 @@ def main(xls):
                 tab1[5,giro] = sum(portfolioglobal_z_n[:])
 
                 if viol_frazione_min_n > 0:
-                    print('Violazione frazione minima/Fitness post-p  :           SÌ \n')
+                    print('Violazione frazione minima/Fitness post-p  :           SI \n')
                     tab1[6,giro] = 1
                 else:
                     print('Violazione frazione minima/Fitness post-p  :           NO \n')
                     tab1[6,giro] = 0
                 
                 if viol_frazione_max_n > 0:
-                    print('Violazione frazione massima/Fitness post-p :           SÌ \n')
+                    print('Violazione frazione massima/Fitness post-p :           SI \n')
                     tab1[7,giro] = 1
                 else:
                     print('Violazione frazione massima/Fitness post-p :           NO \n')
